@@ -21,11 +21,15 @@ if database_file is not None and received_file is not None:
         received_df = pd.read_excel(received_file)
         received_df.columns = received_df.columns.str.lower()
 
-        # Extract only the 'farmer_id' column for comparison (case-insensitive check)
-        if 'farmer_id' in database_df.columns and 'farmer_id' in received_df.columns:
-            # Convert farmer_id to lowercase to ignore case differences in the IDs
-            database_farmers = database_df[['farmer_id']].drop_duplicates().apply(lambda x: x.str.lower())
-            received_farmers = received_df[['farmer_id']].drop_duplicates().apply(lambda x: x.str.lower())
+# Convert farmer_id column to string and then to lowercase to avoid non-string issues
+if 'farmer_id' in database_df.columns and 'farmer_id' in received_df.columns:
+    # Ensure all values are strings, then apply .str.lower()
+    database_farmers = database_df[['farmer_id']].drop_duplicates().astype(str).apply(lambda x: x.str.lower())
+    received_farmers = received_df[['farmer_id']].drop_duplicates().astype(str).apply(lambda x: x.str.lower())
+
+    # Continue with the rest of your code to find common and missing farmer IDs
+    ...
+
 
             # Find common farmer_ids (that exist in both files)
             common_data = pd.merge(received_farmers, database_farmers, on='farmer_id', how='inner')
