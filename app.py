@@ -21,11 +21,21 @@ if database_file is not None and received_file is not None:
         received_df = pd.read_excel(received_file)
         received_df.columns = received_df.columns.str.lower()
 
-        # Convert farmer_id column to string and then to lowercase to avoid non-string issues
+        # Convert farmer_id column to string, lowercase, and strip spaces to avoid issues
         if 'farmer_id' in database_df.columns and 'farmer_id' in received_df.columns:
-            # Ensure all values are strings, then apply .str.lower()
-            database_farmers = database_df[['farmer_id']].drop_duplicates().astype(str).apply(lambda x: x.str.lower())
-            received_farmers = received_df[['farmer_id']].drop_duplicates().astype(str).apply(lambda x: x.str.lower())
+            # Normalize farmer_id: lowercase, strip spaces
+            database_farmers = (
+                database_df[['farmer_id']]
+                .drop_duplicates()
+                .astype(str)
+                .apply(lambda x: x.str.lower().str.strip())
+            )
+            received_farmers = (
+                received_df[['farmer_id']]
+                .drop_duplicates()
+                .astype(str)
+                .apply(lambda x: x.str.lower().str.strip())
+            )
 
             # Find common farmer_ids (that exist in both files)
             common_data = pd.merge(received_farmers, database_farmers, on='farmer_id', how='inner')
